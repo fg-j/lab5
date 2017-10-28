@@ -1,0 +1,1 @@
+setlinebuf(stdout);
