@@ -1,0 +1,44 @@
+- store a variable that is # of things in the buffer
+
+- producer function
+  - read a line from text file
+  - parse line, put values into parts of a new struct object
+  - if reads an EOF -->
+    - save nonzero value to quit field; ignore all other fields
+    - DON'T SLEEP
+    - check if buffer is full
+  - otherwise, sleep for a given time
+
+  - pick up mutex
+  - then, write to the buffer
+  - change the "next empty" variable
+  - change the # of things in buffer variable
+  - put down mutex
+  - print a status message (maybe -- depends on part of the line)
+
+- consumer function
+  - should not try to read from the buffer if it's empty
+  - pick up mutex
+    - grab thing in buffer
+    - maybe change "next to read"
+    - change the # things in buffer variable
+  - put down mutex
+  - check if we're supposed to quit
+    - print the final sum
+    - terminate the thread
+  - call sleep func w/ sleep value from message
+  - add number in struct to the running sum
+  - optionally print status message
+
+- wrappers
+  - error-checking scanf
+  - print producer message function
+  - print consumer message function
+  - print sum func
+  - error-checking nanosleep//convert millisecond times to nano-times
+  - error-checking printf
+  - error-checking create thread
+                  join
+                  lock and unlock mutex
+                  cond_wait and
+                  cond signal
