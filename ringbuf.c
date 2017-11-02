@@ -19,7 +19,7 @@ void Pthread_create(pthread_t* thread, const pthread_attr_t* attr, void*(*start_
   errnum = pthread_create(thread, attr, start_routine, arg);
   // Errno nonzero if the function returns an error
   if (errnum) {
-    printf("pthread_create error: %s\n", strerror(errnum));
+    fprintf(stderr, "pthread_create error: %s\n", strerror(errnum));
     exit(-1);
   }
 }
@@ -30,7 +30,7 @@ void Pthread_join(pthread_t thread, void** ret_val) {
   errnum = pthread_join(thread, ret_val);
   // Errnum nonzero if the function returns an error
   if (errnum) {
-    printf("pthread_join error: %s\n", strerror(errnum));
+    fprintf(stderr, "pthread_join error: %s\n", strerror(errnum));
     exit(-1);
   }
 }
@@ -46,7 +46,7 @@ void millisleep(int sleeptime) {
   err = nanosleep(sleeptime*(10^6));
 
   if (err) {
-    printf("sleep error: %s\n", strerror(errno));
+    fprintf(stderr, "sleep error: %s\n", strerror(errno));
     exit(-1);
   }
 }
