@@ -13,6 +13,12 @@ struct message {
     int quit; /* NZ if consumer should exit */
 } typedef struct message message;
 
+void unix_error(char *msg) /* Unix-style error */
+{
+  fprintf(stderr, "%s: %s\n", msg, strerror(errno));
+  exit(0);
+
+}
 void Pthread_create(pthread_t* thread, const pthread_attr_t* attr, void*(*start_routine)(void *), void *arg) {
   int errno;
 
