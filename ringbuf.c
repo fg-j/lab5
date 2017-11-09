@@ -5,6 +5,8 @@
 #include <errno.h>
 #define BUFFER_SIZE 10
 
+
+
 struct message {
     int value; /* Value to be passed to consumer */
     int consumer_sleep; /* Time (in ms) for consumer to sleep */
@@ -13,19 +15,26 @@ struct message {
     int quit; /* NZ if consumer should exit */
 } typedef struct message message;
 
+message buffer[BUFFER_SIZE];
+int buffer_size = 0;
+
+
+/********************************/
+
 void unix_error(char *msg) /* Unix-style error */
 {
-  fprintf(stderr, "%s: %s\n", msg, strerror(errno));
+  fprintf(stderr, "%s: %s\n", msg, strerror_r(errno)); // use thread-safe version of strerror
   exit(0);
 
 }
+
 void Pthread_create(pthread_t* thread, const pthread_attr_t* attr, void*(*start_routine)(void *), void *arg) {
   int errno;
 
   errnum = pthread_create(thread, attr, start_routine, arg);
   // Errno nonzero if the function returns an error
   if (errnum) {
-    fprintf(stderr, "pthread_create error: %s\n", strerror(errnum));
+    unix_error("Thread creation error");
     exit(-1);
   }
 }
@@ -36,10 +45,18 @@ void Pthread_join(pthread_t thread, void** ret_val) {
   errnum = pthread_join(thread, ret_val);
   // Errnum nonzero if the function returns an error
   if (errnum) {
-    fprintf(stderr, "pthread_join error: %s\n", strerror(errnum));
+    unix_error("Thread join error");
     exit(-1);
   }
 }
+
+void Pthread_mutex_init(pthread_mutex_t* mutex, const pthread_mutexattr_t* attr){
+  error = pthread_mutex_init(&mutex, NULL);
+  if (error != 0) {
+    unix_error("Mutex initialization error");
+  }
+}
+
 
 bool Scanf() {
   // do the scanning
@@ -52,21 +69,22 @@ void millisleep(int sleeptime) {
   err = nanosleep(sleeptime*(10^6));
 
   if (err) {
-    fprintf(stderr, "sleep error: %s\n", strerror(errno));
+    unix_error("Sleep error");
     exit(-1);
   }
 }
 
-void consumer() {
+void consumer(pthread_mutex_t* mutex) {
 
 }
 
-void producer() {
+void producer(pthread_mutex_t* mutex) {
+   
   int line_num = 0;
   bool eof = false;
   while (!eof){
     message  mes;
-    // Read a line from text file
+    // Read a line from stdinput
 
     mes.value;
     mes.consumer_sleep;
@@ -85,6 +103,23 @@ void producer() {
       millisleep(producer_sleep);
     }
 
+    // pick up the mutex
+    pthread_mutex_lock(&mutex);
+    // Only want to write to buffer if it's not full
+    while (buffer_size == BUFFER_SIZE){ // no room in the buffer
+      pthread_cond_wait(&cond, &mutex); // briefly puts down the mutex
+    }
+    // We have the mutex -- write to the buffer
+    
+
+
+
+
+
+    // Drop the mutex
+    pthread_mutex_unlock(&mutex);
+
+
   }
 }
 
@@ -93,8 +128,11 @@ int main() {
   setlinebuf(stdout);
 
   // Create the buffer
-  message buffer[BUFFER_SIZE];
-  int buffer_size = 0;
+
+
+  // Create a mutex
+  pthread_mutex_t mutex;
+  Pthread_mutex_init(&mutex, NULL);
 
   //Create the consumer thread
   pthread_t consumer_thread;
