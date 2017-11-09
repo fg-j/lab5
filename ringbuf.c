@@ -58,14 +58,14 @@ void Pthread_mutex_init(pthread_mutex_t* mutex, const pthread_mutexattr_t* attr)
 }
 
 void Pthread_mutex_lock(pthread_mutex_t* mutex){
-  int error = Pthread_mutex_lock(mutex);
+  int error = pthread_mutex_lock(mutex);
   if (error != 0) {
     unix_error("Mutex lock error");
   }
 }
 
 void Pthread_mutex_unlock(pthread_mutex_t* mutex){
-  int error = Pthread_mutex_unlock(mutex);
+  int error = pthread_mutex_unlock(mutex);
   if (error != 0) {
     unix_error("Mutex unlock error");
   }
@@ -114,7 +114,7 @@ void millisleep(int sleeptime) {
     unix_error("Sleep error");
     exit(-1);
   }
-  
+
 }
 /***********************/
 
